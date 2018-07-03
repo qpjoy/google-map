@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <title>Title</title>
+    <style type="text/css">
+        html {
+            height: 100%
+        }
+
+        body {
+            heigh: 100%;
+            margin: 0;
+            padding: 0
+        }
+
+        #mapDiv {
+            height: 100%;
+        }
+        #coordsDiv {
+            position: absolute;
+            background-color: white;
+            border: 1px solid black;
+            bottom: 50px;
+            right: 50px;
+            height: 50px;
+            width: 380px;
+            padding-top: 5px;
+            padding-left: 5px;
+        }
+    </style>
+    <script type="text/javascript"
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPUAGz57VrPed6agBDsoksom5TPO-HN_k"></script>
+    <script type="text/javascript">
+        // var centerMarker = new google.maps.Marker({
+        //     icon: imageURL,
+        //     position: new google.maps.LatLng(52.345860, -3.051817),
+        //     map: map,
+        //     title: "The offa's Dyke Center, Knighton, Powys"
+        // });
+        //
+        // var pathToCenter = new google.maps.Polyline({
+        //     path: pathCoordinates,
+        //     strokeColor: '#0000FF',
+        //     strokeOpacity: 1.0,
+        //     strokeWeight: 2
+        // })
+        // pathToCenter.setMap(map);
+        //
+        // var natureCoords = [
+        //     new google.maps.LatLng(52.347295, -3.059607),
+        //     new google.maps.LatLng(52.347295, -3.059607),
+        //     new google.maps.LatLng(52.347295, -3.059607),
+        //     new google.maps.LatLng(52.347295, -3.059607),
+        //     new google.maps.LatLng(52.347295, -3.059607),
+        //     new google.maps.LatLng(52.347295, -3.059607)
+        // ];
+        // var natureArea = new google.maps.Polygon({
+        //     path: natureCoords,
+        //     strokeColor: '#FFFFFF',
+        //     strokeOpacity: 0.8,
+        //     strokeWeight: 2,
+        //     fillColor: '#00FF00',
+        //     fillOpacity: 0.6
+        // })
+        // natureArea.setMap(map);
+        //
+        // var circle = new google.maps.Circle({
+        //     map: map,
+        //     center: new google.maps.LatLng(52.341049, -3.053942),
+        //     fillColor: '#92D050',
+        //     fillOpacity: 0.6,
+        //     strokeColor: '#FF0000',
+        //     strokeOpacity: 0.8,
+        //     strokeWeight: 2
+        // });
+        // circle.setRadius(58);
+        //
+        // var bounds = new google.maps.LatLngBounds(
+        //     new google.maps.LatLng(52.340308, -3.052557),
+        //     new google.maps.LatLng(52.340799, -3.050647)
+        // );
+        // var rectangle = new google.maps.Rectangle({
+        //     bounds: bounds,
+        //     map: map,
+        //     fillColor: '#00FF00',
+        //     fillOpacity: 0.6,
+        //     strokeColor: '#FF0000',
+        //     strokeOpacity: 0.8,
+        //     strokeWeight: 2
+        // })
+        //
+        // var imageBounds = new google.maps.LatLngBounds(
+        //     new google.maps.LatLng(53.178521, -3.438549),
+        //     new google.maps.LatLng(53.194979, -3.390613)
+        // );
+        // var historicalOverlay = new google.maps.GroundOverlay(
+        //     'http://localhost:8080/gmaps/images/denbigh.jpg',
+        //     imageBounds
+        // );
+        // historicalOverlay.setMap(map);
+
+        // directionsService.route(request, function (results, status) {
+        //     if(status == google.maps.DirectionsStatus.OK) {
+        //         directionsDisplay.setDirections(result);
+        //     }else {
+        //         alert('Could not calculate directions!');
+        //     }
+        // })
+
+        var map;
+        var geocoder = new google.maps.Geocoder();
+
+
+        function addButtons(map) {
+            google.maps.event.addDomListener(btnTerrain, 'click',
+            function () {
+                map.setMapTypeId(google.maps.MapTypeId.TERRAIN)
+            })
+            // document.getElementById('btnTerrain').addEventListener('click', function () {
+            //     map.setMapTypeId(google.maps.MapTypeId.TERRAIN);
+            // })
+            document.getElementById('btnHybrid').addEventListener('click', function () {
+                map.setMapTypeId(google.maps.MapTypeId.HYBRID);
+            })
+            document.getElementById('btnRoadmap').addEventListener('click', function () {
+                map.setMapTypeId(google.maps.MapTypeId.ROADMAP);
+            })
+            document.getElementById('btnSatellite').addEventListener('click', function () {
+                map.setMapTypeId(google.maps.MapTypeId.SATELLITE);
+            })
+        }
+
+        function addGeoJSONDataLayer(map) {
+            map.data.loadGeoJson('http://localhost:8080/gmaps/data/SecretCastlesOfWales.json');
+            map.data.setStyle({
+                icon: 'http://localhost:8080/gmaps/images/castle.png',
+                strokeColor: 'green'
+            })
+        }
+
+        function drawMarkers(map) {
+            var image = 'http://localhost:8080/gmaps/images/walesflag.png';
+            var centerMarker = new google.maps.Marker({
+                icon: image,
+                position: new google.maps.LatLng(52.345860, -3.051817),
+                map: map,
+                title: "The Offa's Dyke Center, Knighton, Powys"
+            });
+            var pubMarker = new google.maps.Marker({
+                icon: image,
+                position: new google.maps.LatLng(52.343866, -3.0492420),
+                map: map,
+                title: 'The Knighton Hotel'
+            });
+
+            var contentString = `
+                <div id="content">
+                    <div id="siteNotice">
+
+                    </div>
+                    <h1 id="firstHeading" class="firstHeading">The Offa's Dyke Center</h1>
+                    <div id="bodyContent">
+                    <p> The <b>Offa's Dyke Center</b>middle of the pretty town of Knighton, in Powys.</p>
+                    </div>
+                </div>
+            `;
+
+            var infowindow = new google.maps.InfoWindow({
+                content: contentString
+            });
+            google.maps.event.addListener(centerMarker, 'click',
+            function () {
+                infowindow.open(map, centerMarker);
+            });
+        }
+
+        function drawPolyline(map) {
+            var pathCoordinates = [
+                new google.maps.LatLng(52.343808, -3.049318),
+                new google.maps.LatLng(52.343880, -3.049468),
+                new google.maps.LatLng(52.344064, -3.049146),
+                new google.maps.LatLng(52.344261, -3.049682),
+                new google.maps.LatLng(52.345126, -3.050551),
+                new google.maps.LatLng(52.345493, -3.051034),
+                new google.maps.LatLng(52.345663, -3.051388),
+                new google.maps.LatLng(52.345716, -3.051742),
+                new google.maps.LatLng(52.345801, -3.051796),
+                new google.maps.LatLng(52.345860, -3.051935),
+                new google.maps.LatLng(52.345945, -3.051903),
+            ];
+
+            var pathToCenter = new google.maps.Polyline({
+                path: pathCoordinates,
+                geodesic: false,
+                strokeColor: '#0000FF',
+                strokeOpacity: 1.0,
+                strokeWeight: 2
+            })
+            pathToCenter.setMap(map);
+        }
+
+        function drawEditablePolygon(map) {
+            var natureCoords = [
+                new google.maps.LatLng(52.347295, -3.059607),
+                new google.maps.LatLng(52.347138, -3.061066),
+                new google.maps.LatLng(52.346351, -3.060465),
+                new google.maps.LatLng(52.345460, -3.060465),
+                new google.maps.LatLng(52.344569, -3.059864),
+                new google.maps.LatLng(52.344726, -3.058748)
+            ];
+            var natureArea = new google.maps.Polygon({
+                path: natureCoords,
+                strokeColor: '#FFFFFF',
+                strokeOpacity: 0.8,
+                strokeWeight: 2,
+                fillColor: '#00FF00',
+                fillOpacity: 0.6,
+                editable: true
+            });
+            natureArea.setMap(map);
+        }
+
+        function drawDraggableRectangle(map) {
+            var bounds = new google.maps.LatLngBounds(
+                new google.maps.LatLng(52.340308, -3.052557),
+                new google.maps.LatLng(52.340799, -3.050647)
+            )
+            var rectangle = new google.maps.Rectangle({
+                bounds: bounds,
+                map: map,
+                fillColor: '#00FF00',
+                fillOpacity: 0.6,
+                strokeColor: '#FF0000',
+                strokeOpacity: 0.8,
+                strokeWeight: 2,
+                draggable: true
+            })
+        }
+
+        function drawCircle(map) {
+            var circle = new google.maps.Circle({
+                map: map,
+                center: new google.maps.LatLng(52.341049, -3.053942),
+                fillColor: '#FF33FF',
+                fillOpacity: 0.6,
+                strokeColor: '#FF0000',
+                strokeOpacity: 0.8,
+                strokeWeight: 2
+            });
+            circle.setRadius(58.222737);
+        }
+
+        function addKmlLayer(map) {
+            var offasDykeLayer = new google.maps.KmlLayer(
+                'http://hikeview.co.uk/tracks/hikeview-offas-dyke.kml');
+            offasDykeLayer.setMap(map);
+        }
+
+        function addGroundOverlay(map) {
+            var imageBounds = new google.maps.LatLngBounds(
+                new google.maps.LatLng(53.178521, -3.438549),
+                new google.maps.LatLng(53.194979, -3.390613)
+            );
+            var historicalOverlay = new google.maps.GroundOverlay(
+                'http://localhost:8080/gmaps/images/denbigh.jpg', imageBounds);
+            historicalOverlay.setMap(map);
+        }
+
+        function addGoToInitialExtent(map, initialCenter, initialZoom) {
+            google.maps.event.addListener(map, 'rightclick',
+                function () {
+                    map.setCenter(initialCenter);
+                    map.setZoom(initialZoom);
+                })
+        }
+
+        function addShowCoords(map) {
+            google.maps.event.addListener(map, 'center_changed',
+            function () {
+                var newCenter = map.getCenter();
+                var zoom = map.getZoom();
+                document.getElementById('coordsDiv').innerHTML= `
+                    Center: "${newCenter.toString()}" <br/>
+                    Zoom: "${zoom}"
+                `
+            })
+        }
+
+        function geocodeAddress() {
+            var address =document.getElementById('address').value;
+            geocoder.geocode({
+                'address': address
+            }, function (results, status) {
+                if(status == google.maps.GeocoderStatus.OK) {
+                    map.setCenter(result[0].geometry.location);
+                    var marker = new google.maps.Marker({
+                        map: map,
+                        position: results[0].geometry.location
+                    });
+                    map.setZoom(17);
+                    map.panTo(marker.position);
+                }else {
+                    alert('Geocode failed with the following error; ' + status);
+                }
+            })
+        }
+
+        function calcRoute() {
+            var directionsService = new google.maps.DirectionsService();
+            var directionsDisplay;
+            directionsDisplay = new google.maps.DirectionsRenderer();
+            directionsDisplay.setMap(map);
+            directionsDisplay.setPanel(document.getElementById('directionsPanel'));
+
+            var start = document.getElementById('start').value;
+            var end = new google.maps.LatLng(52.345860, -3.051817);
+            var request = {
+                origin: start,
+                destination: end,
+                travelMode: google.maps.TravelMode.DRIVING
+            };
+            directionsService.route(request, function(result, status) {
+                if(status == google.maps.DirectionsStatus.OK) {
+                    directionsDisplay.setDirections(result);
+                }else {
+                    alert('Could not calculate directions. Try again, or buy a map!');
+                }
+            })
+        }
+
+        function addElevationService() {
+            elevationService = new google.maps.ElevationService();
+            google.maps.event.addListener(map, 'click',
+            getElevation)
+        }
+
+        function getElevation(event) {
+            var locations = [];
+            var infowindow = new google.maps.InfoWindow();
+            var userClickLocation = event.latLng;
+            locations.push(userClickLocation);
+
+            var positionalRequest = {
+                'locations': locations
+            }
+
+            elevationService.getElevationForLocations(
+                positionalRequest, function (results, status) {
+                    if(status == google.maps.ElevationStatus.OK) {
+                        if(results[0]) {
+                            infowindow.setContent('The elevation at this point is ' + Math.round(results[0].elevation) + ' meters.');
+                            infowindow.setPosition(userClickLocation);
+                            infowindow.open(map);
+                        }else {
+                            alert('No results found');
+                        }
+                    }else {
+                        alert('Elevation service failed due to: ' + status);
+                    }
+                }
+            )
+        }
+
+        function initialize() {
+            var mapOptions = {
+                center: new google.maps.LatLng(0, 0),
+                zoom: 4,
+                disableDefaultUI: true,
+                zoomControl: true,
+                zoomControlOptions: {
+                    style: google.maps.ZoomControlStyle.SMALL,
+                    position: google.maps.ControlPosition.BOTTOM_LEFT
+                },
+                panControl: true,
+                mapTypeControl: true,
+                mapTypeControlOptions: {
+                    mapTypedIds: [google.maps.MapTypeId.ROADMAP,
+                        google.maps.MapTypeId.HYBRID],
+                    style: google.maps.MapTypeControlStyle.DROPDOWN_MENU
+                },
+                scaleControl: true,
+                streetViewControl: true,
+                rotateControl: true,
+                overviewMapControl: true,
+                overviewMapControlOptions: {
+                    opened: true
+                }
+            };
+
+            var initialCenter = mapOptions.center;
+            var initialZoom = mapOptions.zoom;
+
+            var map = new google.maps.Map(document.getElementById("mapDiv"), mapOptions);
+            addButtons(map);
+            addShowCoords(map);
+            addGoToInitialExtent(map, initialCenter, initialZoom);
+            addGeoJSONDataLayer(map);
+            addKmlLayer(map);
+            addGroundOverlay(map);
+            drawMarkers(map);
+            drawPolyline(map);
+            drawEditablePolygon(map);
+            drawDraggableRectangle(map);
+            drawCircle(map);
+        }
+
+        google.maps.event.addDomListener(window, 'load', initialize);
+    </script>
+</head>
+<body>
+<button id="btnTerrain">Terrain</button>
+<button id="btnRoadmap">Roadmap</button>
+<button id="btnSatellite">Satellite</button>
+<button id="btnHybrid">Hybrid</button>
+
+<!--<div>-->
+    <!--<input id="address" type="textbox" value="Knighton, Powys"-->
+    <!--style="width: 300px;">-->
+    <!--<input type="button" value="Geocode" onclick="geocodeAddress()">-->
+<!--</div>-->
+
+<div>
+    <input id="start" type="textbox" value="" style="width: 300px">
+    <input id="" type="button" value="Get Route" onclick="calcRoute()">
+</div>
+<div id="directionsPanel" style="float: right;width: 30%; height: 100%;"></div>
+
+<div id="mapDiv"></div>
+<!--<div id="coordsDiv"></div>-->
+
+</body>
+</html>
