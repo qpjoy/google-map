@@ -1,5 +1,5 @@
 http://code.google.com/apis/console
-https://appswithmaps.net/gmaps/latlongfinder/index.html
+https://appswithmaps.net/gmaps/latlngfinder/index.html
 
 
 KML
